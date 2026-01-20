@@ -1,0 +1,170 @@
+Introduction to the Windows Subsystem for Linux
+-----------------------------------------------
+
+- WSL2 runs a Linux kernel in a lightweight Virtual Machine, it can 
+  even run Linux GUI apps.
+
+- The WSL2 VM isn't running until it's launched by a WSL Terminal 
+  or if accessing its file system; it launches in about 1s.
+  WSL2 will shutdown when its file system is not accessed and when 
+  all WSL Terminals are closed.
+
+- Keep WSL2 running in case that you want to use some Linux services:
+  https://github.com/microsoft/WSL/issues/10138
+
+
+Commands
+--------
+
+If you use wsl.exe (with .exe) the commands work both in the Command 
+Prompt and also in the WSL Terminal.
+
+Help:
+$ wsl.exe --help
+
+Install WSL with the default Ubuntu distribution, you will be prompted 
+to create a Linux username with a password; use --no-distribution to 
+avoid installing the default Ubuntu distro:
+$ wsl.exe --install
+
+Check & update WSL:
+$ wsl.exe --version
+$ wsl.exe --update
+
+List the available distros and install one of them:
+$ wsl.exe --list --online
+$ wsl.exe --install Ubuntu-24.04
+
+View the list of installed distros and their current state:
+$ wsl.exe --list --verbose
+
+Unregister and uninstall a distro:
+$ wsl.exe --unregister Ubuntu
+
+Default WSL version (1 or 2) and default distro:
+$ wsl.exe --status
+$ wsl.exe --set-default-version 2
+$ wsl.exe --set-default Ubuntu-24.04
+
+Default WSL user (ensure the user exists in the distro):
+$ wsl.exe --manage Ubuntu --set-default-user username
+
+Start the WSL Terminal for the default distro or for the provided one 
+(use --cd ~ to start at the user's home directory):
+$ wsl.exe
+$ wsl.exe --distribution Ubuntu-24.04
+
+Terminate all running distros or terminate the given one:
+$ wsl.exe --shutdown
+$ wsl.exe --terminate Ubuntu-24.04
+
+Upgrade WSL version for a given distro:
+$ wsl.exe --set-version Ubuntu 2
+
+Move the distro to a new location:
+$ wsl.exe --manage Ubuntu --move "D:\my wsl\Ubuntu"
+
+Export a snapshot of the given distribution:
+$ wsl.exe --export Ubuntu ubuntu_backup.tar
+
+Import/restore as a new distribution, can import from an exported 
+distro, but also directly from the ext4.vhdx copied from another PC
+(remember to set the default user):
+$ wsl.exe --import UbuntuNew "C:\my wsl\UbuntuNew" ubuntu_backup.tar
+$ wsl.exe --import UbuntuNew "C:\my wsl\UbuntuNew" ext4.vhdx --vhd
+
+Reference:
+https://learn.microsoft.com/en-us/windows/wsl/basic-commands
+
+
+VM resources allocation configuration
+-------------------------------------
+
+If not existing, create the "%userprofile%\.wslconfig" file and edit it like:
+
+# Settings apply across all Linux distros running on WSL 2
+[wsl2]
+
+# Set the maximum amount of RAM for WSL2. 
+# It defaults to 50% of total memory on Windows.
+memory=4GB
+
+# Define the number of CPU cores WSL2 can use. 
+# It defaults to the same number of logical processors on Windows.
+processors=2
+
+# Define the number of milliseconds that a VM is idle, before it is shutdown.
+# It defaults to 60000 ms. 	
+vmIdleTimeout=60000
+
+Apply the changes by restarting WSL2:
+$ wsl.exe --shutdown
+
+See also:
+https://github.com/MicrosoftDocs/wsl/blob/main/WSL/wsl-config.md
+
+
+File system
+-----------
+
+Access Linux files from Windows:
+\\wsl$
+
+From WSL Terminal we can open the current location in Windows Explorer
+(that can restore the Linux Penguin shortcut if it is missing):
+$ explorer.exe .
+
+Access Windows files from WSL Terminal:
+/mnt/c, /mnt/d, ...
+
+Mount a drive until logoff:
+$ sudo mkdir /mnt/s               # if not existing, create it
+$ sudo mount -t drvfs S: /mnt/s   # mount the drive
+$ sudo umount /mnt/s              # un-mount the drive
+
+Mount a drive in a persistent manner by adding to /etc/fstab:
+S: /mnt/s drvfs defaults 0 0
+$ sudo mkdir /mnt/s               # if not existing, create it
+$ sudo mount -a                   # reload the fstab file
+
+
+Linux commands
+--------------
+
+Check distribution version:
+$ cat /etc/issue
+
+Update & upgrade:
+$ sudo apt update
+$ sudo apt upgrade -y
+
+Install a linux GUI App:
+$ sudo apt install dolphin
+
+Disable terminal colors in ~/.bashrc by clearing the following var:
+color_prompt=
+
+
+Run programs
+------------
+
+Start a Windows GUI application from the WSL Terminal, the launched app 
+runs in Windows OS:
+$ /mnt/c/Windows/System32/notepad.exe
+
+Start a Linux GUI application which will show its View in Windows OS:
+$ dolphin
+
+Run a Windows console application from WSL, stdin/stdout are connected 
+to the WSL Terminal, but everything else comes from the Windows OS:
+$ /mnt/c/Windows/System32/net.exe user
+
+In WSL Terminal pay attention to the version you use:
+$ git version                     # Linux Git
+$ git.exe version                 # Windows Git
+
+If in Windows Explorer we right-click on a 
+\\wsl.localhost\Ubuntu-24.04\home\username\my-project folder and choose 
+"Open with Code", the Windows VS Code will run. The started VS Code will 
+use the Windows Git, but from the VS Code's WSL Terminal we can also 
+use the Linux Git if we omit the .exe extension.

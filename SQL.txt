@@ -1,0 +1,438 @@
+In SQL databases, also known as relational databases, data is organized 
+in tables which have columns and rows like a CSV file. Multiple tables 
+can be joined together via a primary key or a foreign key. These unique 
+identifiers demonstrate the different relationships which exist between 
+the tables.
+In contrast, NoSQL databases store all incoming data in a single 
+document with no structure. 
+
+Basic SQL (structured query language) syntax
+--------------------------------------------
+
+- For single line comments use -- and /* */ for multi-line comments.
+
+- The SQL keywords are case insensitive, but usually written in 
+  uppercase, the SQL statements are separated by semi-colons and better 
+  if ended with a semi-colon. SQL doesn't care about line breaks in 
+  statements.
+
+- For MSSQL the case-sensitivity of the database names are determined by 
+  the server wide collation set when installing the server, while the 
+  database collation determines the case-sensitivity for table and 
+  column names, and for string searches (non-binary data).
+  For MySQL/MariaDB the case-sensitivity varies like:
+  1. The database collation determines case-sensitivity of string 
+     searches (non-binary data).
+  2. The column names are always case-insensitive.
+  3. Database and table names are case-sensitive on Linux and 
+     case-insensitive on MacOS and Windows, check it with:
+     SHOW VARIABLES LIKE 'lower_case_table_names';
+     https://dev.mysql.com/doc/refman/en/identifier-case-sensitivity.html
+  Collation name contains:  ci = case-insensitive    cs = case-sensitive
+
+- When naming databases, tables and columns, it's a good habit to use 
+  only ASCII lowercase letters, numbers, and underscores. This avoids 
+  problems related to changes in case-sensitivity when moving a database 
+  to another server and ensures that the used characters are supported. 
+  Some argue that table names should be in the plural form, while others 
+  prefer the singular form. The plural form feels more natural, 
+  especially to beginners, and name conflicts with reserved keywords are 
+  rare (users vs. user). Conversely, table names in the singular form 
+  align with the singular form of the column names; for example a 
+  foreign key to tablename is simply tablename_id. At the end just pick 
+  a convention and stick to it. Here are some opinions: 
+  https://stackoverflow.com/questions/338156/table-naming-dilemma-singular-vs-plural-names
+  
+- [S]ingle-quotes for [S]trings literals (date literals are also strings).
+  Single quotes are escaped by doubling them: 'Hi, my name''s Tim.'
+
+- [D]ouble-quotes for [D]atabase identifiers like table and column names 
+  or aliases (MSSQL allows also square brackets and MySQL/MariaDB allows 
+  also backticks).
+
+- By SQL standard the backslash should be treated as a normal character. 
+  MySQL/MariaDB are an exception to that because by default they use 
+  C-style backslash escapes. MySQL/MariaDB have a mode to prevent that: 
+  "Enabling the NO_BACKSLASH_ESCAPES mode disables the use of the 
+  backslash character as an escape character within strings and 
+  identifiers. With this mode enabled, backslash becomes an ordinary 
+  character like any other, and the default escape sequence for LIKE 
+  expressions is changed so that no escape character is used."
+
+
+Database
+--------
+
+CREATE DATABASE record_company;
+DROP DATABASE record_company;
+SHOW DATABASES;
+for MSSQL we must use:
+SELECT name, compatibility_level, collation_name FROM sys.databases;
+SELECT name, filename FROM master.dbo.sysdatabases;
+
+Before starting with the SQL commands, select a database:
+USE record_company;
+or directly target a database like:
+SELECT * FROM db.tbl;
+SELECT * FROM db.dbo.tbl;    -- for MSSQL
+Explanation: MSSQL uses schemas, the default is dbo, you normally don't 
+             need to specify it within a single database. But if you 
+             reference a table in another database it has to be provided.
+
+
+Table create
+------------
+
+While not mandatory, it is good practice to ensure that every SQL table 
+has a primary key (PK). The primary key is usually an auto-incrementing 
+integer. However, for distributed databases, a UUID is preferable 
+because it prevents the creation of duplicate keys.
+
+The order for column properties is: Name Type Constraints
+Note: the order of the Constraints does not matter.
+
+CREATE TABLE bands (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
+);
+CREATE TABLE albums (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    release_year INT,
+    like_me BIT DEFAULT 1,
+    band_id INT NOT NULL,
+    FOREIGN KEY (band_id) REFERENCES bands(id)
+);
+- FOREIGN KEY tells the server that band_id must point to an existing 
+  bands entry. There is also an inline foreign key syntax supported by 
+  most database systems including MariaDB 10.5/MySQL 9 or higher:
+  band_id INT NOT NULL REFERENCES bands(id)
+- PRIMARY KEY tells the server that an id uniquely identifies a row. 
+  PRIMARY KEY implies UNIQUE and usually it implies also NOT NULL, but 
+  SQLite is an exception to that, so it's better to write NOT NULL.
+- Automatically increment column for each new row:
+  * MySQL uses AUTO_INCREMEMT
+  * MSSQL uses IDENTITY
+  * PostgreSQL uses SERIAL
+  * SQLite has the INTEGER PRIMARY KEY type which must be written 
+    together because it is an alias of ROWID. Placing an AUTOINCREMENT 
+    directly after an INTEGER PRIMARY KEY prevents the reuse of ROWIDs 
+    from previously deleted rows and thus ensures that the id increases 
+    monotonically.
+- NOT NULL ensures that a column cannot have a NULL value.
+- UNIQUE ensures that all values in a column are different.
+- CHECK (age >= 10) ensures that the given condition is satisfied.
+- DEFAULT value sets the given value if no value is provided.
+- VARCHAR(wanted_max_chars)       -- MSSQL limits wanted_max_chars to 8000 bytes,
+                                  -- MySQL used to limit it to 255 bytes, now 65535 bytes
+                                  -- use VARCHAR with UTF8 collation, not NVARCHAR
+- VARCHAR(MAX) or VARBINARY(MAX)  -- only MSSQL, can store up to 2GB
+- LONGTEXT or LONGBLOB            -- only MySQL, can store up to 4GB
+- TEXT                            -- PostgreSQL and SQLite can store up to 1GB,
+                                  -- MySQL limits to 65535 bytes, MSSQL has deprecated it
+- BOOLEAN                         -- TRUE or FALSE, MSSQL only has BIT
+- BIT                             -- 0 or 1
+- INTEGER or INT                  -- 32-bit signed (only one of the two may be supported)
+- BIGINT                          -- 64-bit signed
+- FLOAT                           -- scientific data, -1.79E+308 to 1.79E+308
+- DECIMAL                         -- financial data,  -10^38 + 1 to 10^38 - 1
+- DATETIME                        -- (year, month, day, hour, minute, second)
+- DATETIME2                       -- only MSSQL, when migrating to MSSQL 
+                                  -- better to use DATETIME2
+Note: SQL has no array type, for that use a second table that holds an 
+      array entry per row. Each row points back to its parent table 
+      through the same foreign key value. 
+      Alternatively store the array in a JSON string converted from a 
+      JSON array, or use the native JSON datatype if available.
+
+View table structure after it has been created:
+SHOW CREATE TABLE albums;
+EXEC sp_help albums;              -- for MSSQL
+
+
+Tables list
+-----------
+
+SHOW TABLES;
+SELECT name FROM sys.tables;      -- for MSSQL
+
+
+Tables alter and delete
+-----------------------
+
+ALTER TABLE bands ADD another_column VARCHAR(100);
+ALTER TABLE bands ADD CONSTRAINT fk_band FOREIGN KEY (band_id) REFERENCES bands(id);
+ALTER TABLE bands MODIFY COLUMN another_column VARCHAR(255);
+ALTER TABLE bands ALTER COLUMN another_column VARCHAR(255); -- for MSSQL
+ALTER TABLE bands DROP COLUMN another_column;
+DROP TABLE bands;
+DROP TABLE IF EXISTS bands; -- avoid error when table does not exist
+
+
+Records insert
+--------------
+
+INSERT INTO bands (name) VALUES ('Iron Maiden');
+INSERT INTO bands (name) VALUES ('Metallica'), ('Soundgarden'), ('U2'), ('Madonna'), ('Solo');
+
+INSERT INTO albums (name, release_year, band_id) 
+VALUES ('Iron init', 1985, 1),
+       ('iron super', 1990, 1),
+       ('Meta first', NULL, 2),
+       ('Soundy super one', 1993, 3),
+       ('U2 great', 1995, 4),
+       ('Mado Init', 1990, 5);
+
+
+Records update
+--------------
+
+UPDATE albums SET release_year = 1982;    -- update all rows
+UPDATE tbl SET my_datetime = 'YYYY-MM-DD HH:MI:SS' WHERE id = 1;
+
+
+Records delete
+--------------
+
+DELETE FROM albums;                       -- delete all rows
+DELETE FROM albums WHERE id = 5;
+
+
+Records select
+--------------
+
+Syntax order:
+SELECT  
+FROM
+JOIN
+WHERE
+GROUP BY
+HAVING
+ORDER BY
+LIMIT 3 OFFSET 4                          -- skip 4 and select only 3 rows
+                                          -- OFFSET needs LIMIT                               
+MSSQL uses the following to limit & offset:
+SELECT TOP 3
+or:
+OFFSET 4 ROWS FETCH NEXT 3 ROWS ONLY      -- OFFSET needs ORDER BY
+                                          -- FETCH NEXT needs OFFSET
+
+SELECT id, name FROM bands;
+SELECT * FROM bands;                      -- select all columns 
+SELECT * FROM bands ORDER BY name;        -- default is ASC
+SELECT * FROM bands ORDER BY name DESC;   -- DESC is descending
+
+SELECT * FROM albums WHERE name <> 'U2 great'; -- can also use !=
+SELECT * FROM albums WHERE band_id = 2 OR release_year < 1990;
+SELECT * FROM bands WHERE name IN('Metallica', 'U2'); -- it ORs them
+SELECT * FROM bands WHERE name NOT IN('Metallica', 'U2');
+SELECT * FROM albums WHERE band_id = 1 AND release_year >= 1984;
+SELECT * FROM albums WHERE release_year BETWEEN 1980 AND 1990; -- both inclusive
+SELECT * FROM albums WHERE release_year NOT BETWEEN 1980 AND 1990;
+SELECT * FROM albums WHERE release_year IS NULL;
+SELECT * FROM albums WHERE release_year IS NOT NULL;
+Hint: uses parenthesis to make it clear about the precedence.
+
+/*
+   - Wildcard % is zero or more chars and _ is a single char. 
+   - MSSQL adds additional single char wildcards (syntax like regex):
+     [a-z]  [^ab9]
+*/
+SELECT * FROM albums WHERE name LIKE '%er%';
+SELECT * FROM albums WHERE name NOT LIKE '%er%';
+SELECT * FROM albums WHERE name LIKE '%50!%%' ESCAPE '!';
+Attention: if ESCAPE is not provided, escaping will not happen, except 
+           for MySQL/MariaDB which default to ESCAPE '\\'. That gives 
+           troubles with backslash literals that have to be 
+           quadruple-escaped!
+
+/*
+   - MSSQL requires database compatibility level SQL Server 2025.
+   - MariaDB does not yet support REGEXP_LIKE, while MySQL does.
+   - Often only POSIX character classes are supported, not \w, \s or \s 
+   - Flags param is optional, combine the well known flags: 'i' 'm' 's' 
+     Note: some use 'n' instead of 's'
+*/
+SELECT * FROM albums WHERE REGEXP_LIKE(name, 'pattern', 'flags');
+SELECT * FROM albums WHERE name REGEXP 'pattern'; -- older syntax for MariaDB
+
+/* 
+   Aggregation functions perform calculations on a set of rows to yield 
+   a single value. 
+*/
+SELECT COUNT(*) FROM albums;            -- counts all rows
+SELECT COUNT(release_year) FROM albums; -- NULLs in release_year not counted
+SELECT COUNT(DISTINCT release_year) FROM albums;
+SELECT SUM(release_year) FROM albums;   -- disregards NULL entries
+SELECT SUM(DISTINCT release_year) FROM albums;
+SELECT AVG(release_year) FROM albums;   -- disregards NULL entries
+SELECT AVG(DISTINCT release_year) FROM albums;
+SELECT MAX(release_year) FROM albums;   -- disregards NULL entries
+SELECT MIN(release_year) FROM albums;   -- disregards NULL entries
+
+/* Length in bytes */
+SELECT LENGTH('μm 2π');
+SELECT DATALENGTH('μm 2π');             -- for MSSQL
+
+/* Length in characters */
+SELECT CHAR_LENGTH('μm 2π');
+SELECT LEN('μm 2π');                    -- for MSSQL
+
+/*
+   Aliases give the column another name. Use double-quotes if the alias 
+   has spaces. The AS keyword is optional.
+*/
+SELECT id, name AS "Band Name" FROM bands;
+
+/*
+   Select non-duplicated rows. If multiple columns are provided, then 
+   a row is considered duplicated when there is another row which has 
+   the same values in the specified columns.
+*/
+SELECT DISTINCT col1, col2 FROM tbl;
+SELECT col1, col2 FROM tbl GROUP BY col1, col2; -- equivalent
+
+/*
+   Rows with the same band_id are grouped into a summary row on which we 
+   can do any operation. It's also possible to group by multiple comma 
+   separated columns in which case all must match. To filter the rows 
+   after grouping we must use HAVING and not WHERE which filters before 
+   grouping.
+*/
+SELECT band_id, COUNT(band_id), AVG(release_year) AS avg_year FROM albums 
+GROUP BY band_id 
+HAVING AVG(release_year) >= 1990; -- MySQL allows alias here, not MSSQL
+
+/*
+   Join tables that have matching values in both tables.
+   Note: JOIN or INNER JOIN are the same.
+*/
+SELECT * FROM albums JOIN bands ON bands.id = albums.band_id;
+
+/*
+   Join tables by returning all records from the left or right table, 
+   even if not matching with to other side.
+*/
+SELECT * FROM albums LEFT JOIN bands ON bands.id = albums.band_id;
+SELECT albums.name AS "Album", release_year AS "Year", bands.name AS "Band" 
+FROM albums RIGHT JOIN bands ON bands.id = albums.band_id;
+
+
+Transactions
+------------
+
+Use transactions to execute atomic commands.
+
+MySQL:
+
+START TRANSACTION;
+...
+COMMIT;
+or
+ROLLBACK;
+
+MSSQL and SQLite:
+
+BEGIN TRANSACTION;
+...
+COMMIT TRANSACTION;
+or
+ROLLBACK TRANSACTION;
+
+Note: the rollback is usually used with an IF command in case of failure,
+      it cancels the changes and restores the database to its previous 
+      state.
+
+
+MySQL collation and character set
+---------------------------------
+
+The collation utf8mb4_* means UTF-8 encoding for the Unicode charset 
+using one to four bytes for each character.
+
+The collation utf8mb3_* means UTF-8 encoding for the Unicode charset 
+using one to four bytes for each character. Only BMP representation is 
+supported. This charset has been deprecated and you should switch to 
+utf8mb4 as soon as possible.
+
+utf8mb4_unicode_ci is based on the Unicode standard for sorting and 
+comparison, which sorts accurately in a very wide range of languages.
+utf8mb4_general_ci fails to implement all of the Unicode sorting rules, 
+which will result in undesirable sorting in some situations, but for 
+Latin languages, they both work well.
+
+
+MSSQL collation and character set
+---------------------------------
+
+For new projects a good collation to use is:
+Latin1_General_100_CI_AS_SC_UTF8
+
+See:
+https://learn.microsoft.com/en-us/sql/relational-databases/collations/collation-and-unicode-support?view=sql-server-ver15#utf8
+
+
+MySQL Tools
+-----------
+
+mysql command line tool on a client computer:
+Linux:   $ sudo apt install mysql-client
+Mac:     $ brew install mysql-client 
+Windows: Download https://dev.mysql.com/downloads/installer/ and select 
+         "Custom" to only install "MySQL Workbench" (not "MySQL Shell") 
+         and add "C:\Program Files\MySQL\MySQL Workbench 8.0" to PATH.
+$ mysql -p -u root -h localhost -P 3306
+Hint: it's enough to just provide -p, the remaining is default.
+
+mysql command line tool from a docker image:
+$ docker compose exec mariadb mysql -p
+
+Export:
+$ mysqldump -p -u root db_name > data-dump.sql
+$ mysqldump -p -u root --all-databases > data-dump-all.sql
+Hint: there is a --compatible=mssql option.
+
+Import (into an existing database):
+$ mysql -p -u root db_name < data-dump.sql
+
+Importing older dumps can fail because of ranges check:
+- Supported DATETIME range has a minimum which is not '0000-00-00 00:00:00'
+  SHOW VARIABLES LIKE 'sql_mode';
+  To data-dump.sql add a first line with NO_ZERO_IN_DATE, NO_ZERO_DATE removed:
+  SET SESSION sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+
+MSSQL Tools
+-----------
+
+Command line tool to execute SQL commands (issue "go" to start the query):
+$ docker compose exec mssqldb /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -No
+Notes: - Can leave out -S localhost,1433 which is the default.
+       - Use -P to provide the password.
+       - Use -d db-name to target the given database, it must exist. 
+       - Use -i .\script.sql to execute the provided script.
+
+MSSQL supports a non-standard SQL command to trigger a backup:
+BACKUP DATABASE [mydb] TO DISK = 'backup-mydb.bak';
+
+MSSQL supports a non-standard SQL command to restore a backup:
+RESTORE DATABASE [mydb] FROM DISK = 'backup-mydb.bak' WITH REPLACE, RECOVERY;
+
+To backup with SSMS (SQL Server Management Studio):
+Right-click a database and choose "Tasks - Back Up...".
+
+To restore with SSMS:
+Right-click on "Databases" and choose "Restore Database...".
+
+Export with SSMS:
+Right-click a database and choose "Tasks - Generate Scripts...". 
+Tick "Save as script file" and click the "Advanced" button. Now scroll to 
+"Types of data to script" and select "Schema and data" (if you want to 
+create the tables) or "Data only" (if you're copying data to existing 
+tables).
+Attention: it does not generate a standard SQL, because it adds "go" 
+           statements, there is no way to prevent that by configuration.
+
+Import with SSMS:
+Just open an .sql file and execute it.
+

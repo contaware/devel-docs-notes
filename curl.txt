@@ -1,0 +1,100 @@
+Normally you do not need to specify the method in the command line, but 
+instead the exact method used depends on the specific passed options: 
+GET is default, using -d or -F makes it a POST, -I generates a HEAD and 
+-T sends a PUT.
+
+General options:
+-v, --verbose     make the output more talkative
+-L, --location    follow the redirects
+-k, --insecure    skip certificate verification
+-s, --silent      do not show progress meter or error messages. 
+                  Makes curl mute. It still outputs the data you ask for.
+-L, --location    to follow redirects
+--raw             disables all internal HTTP decoding of content or 
+                  transfer encodings like chunked transfer encoding.
+
+GET request
+-----------
+
+curl http://localhost/sample?name=value
+
+-i, --include     include protocol response headers in the output 
+                  (note that also -v includes them)
+
+
+HEAD request
+------------
+
+curl -I http://localhost/sample?name=value
+
+-I, --head        to only show the response headers
+
+The HEAD method is defined and made so that the server returns the 
+headers exactly the way it would do for a GET, but without a body. It 
+means that you may see a Content-Length: in the response headers, but 
+there must not be an actual body in the HEAD response.
+
+
+DELETE request
+--------------
+
+curl -X DELETE http://localhost:3000/api/1
+
+-i, --include     include protocol response headers in the output 
+                  (note that also -v includes them)
+
+
+POST request
+------------
+
+* form urlencoded:
+curl -d "param1=value1&param2=value2" http://localhost:3000/api
+(if -H is not provided the implied default is:
+-H "Content-Type: application/x-www-form-urlencoded")
+
+* json:
+curl -H "Content-Type: application/json" -d '{"key1":"value1","key2":"value2"}' http://localhost:3000/api
+for Windows:
+curl -H "Content-Type: application/json" -d "{\"key1\":\"value1\",\"key2\":\"value2\"}" http://localhost:3000/api
+New --json option:
+curl --json '{"key1":"value1","key2":"value2"}' http://localhost:3000/api
+for Windows:
+curl --json "{\"key1\":\"value1\",\"key2\":\"value2\"}" http://localhost:3000/api
+
+-i, --include     include protocol response headers in the output 
+                  (note that also -v includes them)
+
+
+PUT request
+-----------
+
+* form urlencoded:
+curl -X PUT -d arg1=val1 -d arg2=val2 http://localhost:3000/api/1
+
+* json (POST shows the old syntax without --json):
+curl -X PUT --json '{"key1":"value1","key2":"value2"}' http://localhost:3000/api/1
+for Windows:
+curl -X PUT --json "{\"key1\":\"value1\",\"key2\":\"value2\"}" http://localhost:3000/api/1
+
+* file
+curl --upload-file "uploadfile" http://www.example.com/receive.cgi
+
+-T, --upload-file transfer local file to server
+-i, --include     include protocol response headers in the output 
+                  (note that also -v includes them)
+
+
+Redirect output
+---------------
+
+curl http://localhost/curl/helloget -o output.txt
+
+-o, --output      write to file instead of stdout    
+
+
+References
+----------
+
+The Windows native curl.exe has some limitations, full support with:
+https://curl.se/windows/
+https://curl.se/docs/httpscripting.html

@@ -1,0 +1,68 @@
+Who parses the Windows Command Line Arguments?
+----------------------------------------------
+
+In Windows a program receives a single command line string which the 
+program itself, not the operating system or the shell, splits into 
+individual arguments.
+
+
+Parser logic for common command line programs
+---------------------------------------------
+
+As common parsers we have parse_cmdline (argc and argv[] of C programs) 
+and CommandLineToArgvW (for Windows GUI programs).
+
+Individual double-quotes do control the switching between two states:
+1. InterpretSpecialChars (initial state): 
+   whitespaces do separate arguments.
+2. IgnoreSpecialChars:
+   whitespaces do NOT separate arguments.
+Note: whitespaces are the space and the tab.
+
+Since double-quote characters work individually and not in pairs, the 
+command line parser can end in one of the above two states.
+
+- If you want to include a single literal double-quote character, 
+  whether the state is InterpretSpecialChars or IgnoreSpecialChars, 
+  precede it by a backslash. 
+  Warning: in IgnoreSpecialChars state, do not use double double-quotes, 
+           the parsers behave inconsistently!
+- If you want literal backslashes that precedes a state-switch 
+  double-quote or a literal double-quote, just double-them:
+  literal backslash before state-switch double-quote: \\"  or \\\\"  ...
+  literal backslash before a literal double-quote:    \\\" or \\\\\" ...
+
+Example:
+TestParams.exe "Hi \" there" "Nice \\\" one" "C:\My Dir\\"
+
+
+Parser logic for batch files
+----------------------------
+
+As we do not have the source code of cmd.exe, we do not know whether 
+internally it uses the same two states described above. From testing we 
+know that it works similarly to the above, but with added "whitespace" 
+characters, let's call them delimiters:   space  tab  ,  ;  =  
+Consecutive delimiters will be treated as one, even if they are of 
+different characters.
+  
+- When in InterpretSpecialChars mode, we must escape the following shell 
+  special characters with a ^:   < > & | ^
+- If you want to include literal double-quote characters, whether the 
+  state is InterpretSpecialChars or IgnoreSpecialChars, the only way is 
+  to double them. This means that we can only ever get literal double 
+  double-quotes.
+- Backslash is not working as escape character, it is a normal character.
+
+Example:
+ParseArgs.bat "Hi "" there" double""quotes,"C:\My Dir\"
+
+To launch a batch script with cmd.exe, do provide the double-quotes like:
+cmd.exe /k ""C:\batch files\test.bat" "arg 1" "arg 2""
+
+
+References
+----------
+
+https://web.archive.org/web/20220629212707/https://windowsinspired.com/understanding-the-command-line-string-and-arguments-received-by-a-windows-program/
+https://web.archive.org/web/20220629212422/http://windowsinspired.com/how-a-windows-programs-splits-its-command-line-into-individual-arguments/

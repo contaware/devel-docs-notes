@@ -1,0 +1,76 @@
+Good VSCode Extensions
+----------------------
+
+autoDocstring - Python Docstring Generator (Nils Werner)
+  - Type """ to generate a docString, use TAB to fill next field.
+Batch Runner (Nils Soderman)
+Bootstrap IntelliSense (Hosain Hossaini)
+C/C++ (microsoft.com)
+Code Spell Checker (streetsidesoftware.com)
+CSS Peek (Pranay Prakash)
+  - Right-click id/class to "Go to Definition".
+  - CTRL+hover to see id/class definition and click to jump to it.
+Draw.io Integration (Henning Dieterichs)
+EJS language support (DigitalBrainstem)
+ESLint (microsoft.com)
+  - JS static analysis tool.
+  - For each project: npm i eslint and npx eslint --init
+Git Graph (mhutchie)
+  - To compare two commits: click on one & CTRL-click any other one.
+gitignore (CodeZombie)
+  - Start command palette and type "Add gitignore" (to download templates).
+  - Without any extension you can also:
+    1. Type "Add to .gitignore" in command palette.
+    2. Right-click a file in Source Control and choose "Add to .gitignore".
+GitLens (GitKraken)
+Graphviz Interactive Preview (tintinweb)
+  - To preview .dot files.
+Hex Editor (Microsoft)
+  - They are working on diff: https://github.com/microsoft/vscode-hexeditor/pull/522
+HTMLHint (HTMLHint)
+  - HTML static analysis tool.
+Intel HEX format (keroc)
+Live Preview (Microsoft)
+  - HTML preview in VSCode or in your browser.
+  - To watch your console.log() messages in VSCode, select the OUTPUT 
+    console, and from the drop-down, choose "Embedded Live Preview Console".
+  - If you have your own server running, instead of this extension,
+    use the VS Code built-in browser by running the following command: 
+    "Simple Browser: Show"
+Markdown All in One (Yu Zhang)
+  - Does create/update TOC and many other things.
+Markdown PDF (yzane)
+PDF Viewer (Mathematic Inc)
+PHP Debug (Xdebug)
+  - If using a Docker LAMP you need a separate CLI PHP installation. For 
+    Windows download the PHP NTS version, place it into C:\php and add 
+    that to your PATH. Then copy php.ini-development to php.ini. 
+    For other OS, it's easy to install a local PHP.
+  - Install xdebug for both CLI PHP and Docker LAMP: 
+    https://xdebug.org/wizard
+  - In php.ini append the following:
+    zend_extension = xdebug
+    [xdebug]
+    xdebug.mode = develop,debug
+    xdebug.start_with_request = yes
+PHP Intelephense (Ben Mewburn)
+  - Go to Extensions and enter @builtin php:
+    Disable "PHP Language Features"
+    (leave "PHP Language Basics" enabled for syntax highlighting)
+Postman (postman.com) or REST Client (Huachao Mao) or Thunder Client (Thunder Client)
+  - To send GET, POST, PUT, DELETE.
+Python (microsoft.com)
+  - It will automatically install Pylance & Python Debugger.
+Python Environments (microsoft.com)
+  - To manage Python environments and packages.
+Rech Batch
+  - Better batch language support and snippets (Ctrl+SPACE).
+  - Go to Extensions and enter @builtin bat:
+    Disable "Windows Bat Language Basics"
+Regex Previewer (Christof Marti)
+ShellCheck (Timon Wong)
+vscode-random (Jorge Rebocho)
+  - Right-click menu or press F1 and type random.
+Windsurf Plugin (formerly Codeium)
+  - AI Coding Autocomplete and Chat for Python, JavaScript, and more.
+Wokwi Simulator (wokwi.com)

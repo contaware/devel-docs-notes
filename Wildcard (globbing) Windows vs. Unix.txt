@@ -1,0 +1,44 @@
+Glob patterns specify sets of filenames with wildcard characters.
+On Unix wildcard expansion is done by the shell, and then the expanded 
+list of files is passed on to the program being run. On Windows, the 
+shell doesn't do any expansion, and it's up to the programs to do the 
+expansion with the Win API functions (like FindFirstFile). 
+Windows cmd.exe and the PowerShell support globbing in scripts. 
+
+
+Wildcard characters
+-------------------
+
+*     matches any number of any characters including none. This wildcard 
+      is not greedy: it will match as little or as much as is needed to 
+      enable subsequent characters to match.
+?     matches any single character.
+
+Notes: 
+1. Both * and ? never match the path separator character 
+   (/ on Unix or \ on Windows).
+2. Unix allows glob patterns in all parts of a full path, 
+   while Windows only allows them in the filename part.
+
+
+Windows additional wildcard rules
+---------------------------------
+
+?               a question-mark never matches a dot, and 
+                X question-marks at the end or before a dot, 
+                match from 0 to X characters.
+. at the end    matches if there is no extension.
+.* at the end   matches all extensions or also no extension.
+
+For compatibility reasons, Windows generates a 8.3 name for every long 
+file name created, and the wildcard matching checks both the original 
+and the shortened names. Use dir /x to see what short names are assigned 
+to each file. 
+
+
+Unix additional wildcard rules
+------------------------------
+
+- Names beginning with a dot can only be matched by patterns that also 
+  start with a dot.
+- A glob that ends in a slash will only match directories.

@@ -1,0 +1,507 @@
+Introduction
+------------
+
+YOOtheme is both a joomla template and a page builder. It is based on 
+UIkit which is similar to Bootstrap, but not limited to 12 columns like 
+Bootstrap (both Bootstrap 5 and UIkit 3 dropped dependency on jQuery):
+https://getuikit.com/docs/introduction
+
+Other than the extension itself, there are also demo packages which 
+contain a joomla installation, the YOOtheme extension and a full site 
+built with it.
+
+The four bottom buttons are only to switch the preview from large 
+screens to mobile. They will not change the settings your are editing. 
+Clicking the tablet or phone icons once more, will toggle their 
+orientation.
+
+
+YOOtheme LAYOUT
+---------------
+
+SITE:   set Logo images for desktop and mobile with separate widths.
+        Choose between Full Width or Boxed with optional background.
+        Choose toolbar size (to use the toolbar, publish menus, modules 
+        or social icons in toolbar-left or toolbar-right positions).
+        Enable/disable breadcrumb navigation.
+HEADER: desktop header layout, navbar (publish menu in Navbar Position), 
+        dialog (publish menu in Dialog Position), search and social icons. 
+        A sticky navbar will also stick the logo and the header if those 
+        are displayed on the same line as the navbar. The sticky navbar 
+        will show up once you have scrolled bellow the header or below 
+        the first section if that one has the transparent header set.
+MOBILE: mobile header visibility and layout, navbar (publish menu in 
+        Mobile Navbar Position), dialog (publish menu in Mobile Dialog 
+        Position), mobile search and mobile social icons.
+TOP 
+BOTTOM: are used to publish modules above and below the main content.
+BLOG:   for the blog views that have no template. The number of columns 
+        displayed on the blog overview page is defined in the Article 
+        Manager Options in Joomla under Blog/Featured Layout.
+POST:   for the categorized articles that have no template.
+FOOTER: to import an existing footer layout from the library, click the 
+        "LIBRARY" button which will open the Layout Library. Under All 
+        layouts choose Footer and select a footer. 
+        To add the copyright with the current year use:
+        &copy; <script>document.write(new Date().getFullYear());</script>
+        To create separate footers for different pages or different 
+        languages, use multiple Builder Modules and publish them in the 
+        bottom position. That way they can be displayed on different 
+        pages, and you can change the appearance of each Builder Module. 
+
+
+YOOtheme STYLE
+--------------
+
+With the top drop-down box we can select pre-built styles or save/load 
+our styles including the customizations. It's possible to download a 
+style as .json file, and upload it to another site.
+Press "Preview all UI components" to inspect all styles, head to the 
+elements, or open INVERSE to toggle between normal and inverse styles.
+When you hover the preview you get the names of the styles to change.
+A dot will appear on the left indicating that an entry has been modified, 
+click it for a default value reset.
+GDPR-compliance: when a Google font is selected, it is automatically 
+                 downloaded to the web server and stored locally.
+
+GLOBAL:  adapt colors and backgrounds, fonts for typography, primary and 
+         secondary, and breakpoint values.
+NAVBAR:  set NAV ITEM height and/or adapt top and bottom padding to 
+         vertically center the logo for both desktop and mobile devices. 
+         Set background color and add a background image with css: 
+         .tm-header .uk-navbar-container {background-image: url("..")}
+         Set color mode for menu, mobile toggle and search.
+         Set toggle and search icon sizes with css:
+         .uk-navbar-toggle-icon > svg, .uk-search-icon > svg {width: 40px}
+INVERSE: check also the element styles here!!
+...
+all elements
+...
+RECOMPILE STYLE: sometimes needed after doing manual changes.
+
+
+YOOtheme PAGES and the BUILDER
+------------------------------
+
+YOOtheme Pages only shows uncategorized articles referred as pages. 
+Categorized articles are referred as posts and can be searched or opened 
+in the Joomla Article view by pressing the "YOOtheme Builder" button. 
+The reason for hiding posts is because they often use a template, but 
+they can also be designed individually. On the right of each page there 
+are three dots to edit the article in joomla, while on the left a dot 
+is shown for the currently previewed page. To navigate between the 
+builder pages just click the menu items in the preview page.
+
+Attention: when you add a layout to an existing joomla article, its 
+           content is lost, pulling article content with dynamic data 
+           does not work. Use templates to pull article content dynamically!
+
+A builder page is structured in sections, rows, columns and elements. 
+Internally each row is a flex container. There is a grid element which 
+internally is also a flex container (not a CSS grid).
+
+*** SECTIONS ***
+- NAME each section to identify it inside the builder.
+- TITLE is shown on the left/right edge rotated by 90°.
+- It's possible to set a background image (usually set to cover) or a 
+  background video.
+- TRANSPARENT HEADER can be enabled by the section that directly follows 
+  the header. The height of the section expands to the top of the header 
+  and if "Pull content behind header" is checked the content is moved up.
+- MAX WIDTH sets the maximum width for the content within the section. 
+  The Expand option expands the content to the full width of the section 
+  keeping a small padding to the left and right while the None option 
+  has no padding at all. The other options set the content size from 
+  X-Small to X-Large.
+- HEIGHT set to None will expand the height to the content, it can also 
+  be set to a fixed height or to the viewport height.
+- PADDING sets a vertical padding.
+- STICKY EFFECT: by scrolling down the page, a sticky section is either 
+  covered by the following section when reaching the top, or it is 
+  revealed at the bottom by the previous section. The opposite happens 
+  when scrolling in the other direction.
+- Add custom css:
+  .el-section { min-height: 150vh; }
+- Use a section as a spacer by setting its PADDING to None and the 
+  HEIGHT to the wanted pixels of vertical space. Or set the HEIGHT to 
+  None and the PADDING to X-Small..X-Large.
+
+*** ROWS and COLUMNS ***
+- A row is subdivided in columns. Columns can have fixed, expandable or 
+  fractional widths. The columns have the height of the row. The 
+  elements of a column are displayed stacked.
+- COLUMN GAP defines the size of the gap when the columns are aligned 
+  side by side.
+- ALIGNMENT is useful when there are fixed width columns. Set to 
+  Justify to expand columns equally to always fill remaining space 
+  within the row. Use Left to align all columns to the left and set it 
+  to Center to concentrate all columns centrally.
+- For layouts with two or more columns, arrange the columns in the order 
+  that you would like them to stack when only a single column is 
+  displayed (elements positioned from left to right will stack from top 
+  to bottom). To change the columns order when two or more columns are 
+  displayed, open EDIT LAYOUT, and for the columns that have to be 
+  first, set the "Order First" parameter to the breakpoint that 
+  increases the number of columns to two or more.
+- ROW GAP defines the size of the gap when columns stack on smaller 
+  viewports.
+- MARGIN sets a vertical margin between the rows.
+- To have an image that's taking the height of the tallest column, 
+  create an empty column with a background image. For that empty column 
+  set a minimum height with .el-column {min-height: ..} or hide it when 
+  the columns stack.
+- COLUMN HEIGHT: to set a fixed height for all columns. The columns will 
+  keep this set height when stacking.
+- EDIT COLUMN X - VERTICAL ALIGNMENT is used to move all elements in a 
+  column to the Top, Middle or Bottom. A COLUMN PARALLAX can be applied 
+  to all columns so that they will be aligned at their bottom when 
+  leaving the viewport (VERTICAL ALIGNMENT settings are then ignored).
+- EDIT COLUMN X - POSITION STICKY starts to stick when reaching the top 
+  of the viewport and stops to stick when exiting the viewport. To keep 
+  animating the column content while the column sticks, set the parallax 
+  TARGET to a parent container.
+- Add custom css:
+  .el-row {margin-top: -100vh}
+  .el-column {height: 150vh}
+  
+*** ELEMENTS ***
+- Headline: set HTML Element like H1, but then you can change the Style 
+  for it. Under Settings there are breakpoints for alignment and max width.
+- Image: images have a css of max-width: 100% and height: auto, it 
+  follows that to have them stretch the full width, MAX WIDTH of the 
+  containing section and row have to be set to None.
+  Use absolute positioning to move an image over other elements.
+  The "Force viewport height" sets height: 100vh and object-fit: cover;
+  unfortunately if the image is not large enough, it will not stretch 
+  the full width, to solve that either set a big value for WIDTH 
+  (max-width: 100% will limit it) or use .el-image {width: 100%}
+- Overlay: displays an image with overlay content (text, link, image, 
+  video). To better see the overlays, under the image's EDIT SETTINGS, 
+  make the image darker by adding an OVERLAY COLOR of rgba(0, 0, 0, 0.2).
+  This is exactly equivalent to a BACKGROUND COLOR of 
+  rgba(0.8*255, 0.8*255, 0.8*255, 1.0) and BLEND MODE multiply.
+- Slideshow:      displays one image at the time with overlays.
+  Gallery:        displays multiple images with overlays within a grid.
+  Overlay Slider: displays multiple images with overlays as a slider.
+  Panel Slider:   displays multiple panels/cards as a slider.
+- Grid:  display panel elements within a grid. In Settings under COLUMNS 
+         choose the count for each device and under PANEL set card style.
+- Table: image, title, meta, content, link. Can be set to stack on mobile.
+         If more than 5 columns are needed, use the text element with a 
+         table tag and style: https://getuikit.com/docs/table
+  List: image and text which can be linked. Columns 1-6.
+  Description List: title, meta, content which can be linked. Columns 1-6.
+- There is a video element, but not an audio element, use the HTML 
+  element (autoplay may be blocked by the browser, user can allow it):
+  <audio controls autoplay loop> <!-- remove controls for background sound -->
+    <source src="images/audio/audio-track.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+- Module: can load any joomla module you like.
+- Modal/Off-canvas: there are no such elements, but we can use the HTML 
+  element and place the necessary source code into it:
+  https://getuikit.com/docs/modal
+  https://getuikit.com/docs/offcanvas
+  Inside of them, it's possible to use a joomla module shortcode like 
+  {loadmoduleid 123} that points to a Builder Module.
+  When pressing a link with a uk-toggle attribute, the given #el gets 
+  the hidden attribute added/removed: <a href="#el" uk-toggle>Open</a>
+  If there is no possibility to add the uk-toggle attribute, use 
+  javascript in the Link field:
+  javascript:UIkit.modal('#el').show();
+  javascript:UIkit.offcanvas('#el').toggle(); /* also show()/hide() */
+- Divider: icon can be customized with css:
+  .uk-divider-icon {
+    background-image: url('../../../images/icons/infinity.svg');
+    height: 85px;
+  }
+  .uk-divider-icon::before {
+    border-color: #ff0000;
+    right: calc(50% + (180px / 2));
+  }
+  .uk-divider-icon::after {
+    border-color: #ff0000;
+    left: calc(50% + (180px / 2));
+  }
+- Add custom css:
+  /* An HTML element as spacer */
+  .el-element {height: 140px}
+  /* Center a CODE element */
+  .el-element {display: block; margin: 0 auto; max-width: fit-content}
+  /* Text format and outline */
+  .el-element {font-size: 2rem;
+    text-transform: none; /* none, capitalize or uppercase */
+    letter-spacing: normal; /* 1px or 0.2rem adds to normal spacing */
+    line-height: normal; /* 2.5 is mul by font size or 3em is abs value */
+    color: white !important;
+    text-shadow: -0.02rem 0 black,
+                 0 0.02rem black,
+                 0.02rem 0 black,
+                 0 -0.02rem black;
+  }
+
+An element animation works only when the section animation is enabled, 
+the element animation will overwrite the section animation. That does 
+not hold for parallax effects which do not exist for sections.
+An animation starts to play when the target enters the viewport and 
+continues for a predefined amount of ms; while a parallax effect begins 
+when the target enters the viewport and completes when it leaves.
+A parallax effect with one stop animates from the initial value to the 
+defined stop value. Setting two stops, animates from the first stop 
+value to the second stop value. Setting multiple stops adds intermediate 
+stops along the animation sequence. By default the animation is equally 
+distributed between the stops, we can specify a percentage to position 
+the stops along the animation sequence. It's also possible to set a 
+start and an end offset.
+
+For many elements it's possible to populate the items automatically by 
+creating a first item which pulls dynamic content from joomla articles 
+(article link, article content, intro image or custom fields). 
+Use repeatable Subform fields to create a group of fields that can be 
+duplicated multiple times and pulled as dynamic content under Multiple 
+Items Source.
+
+YOOtheme is missing forms and calendar/events. The Joomla Contact Form 
+can be extended by adding Custom Fields and thus used as a simple form. 
+There are also many third-party extensions:
+https://yootheme.com/support/extensions
+
+
+YOOtheme TEMPLATES
+------------------
+
+A template is a builder layout which applies to category blog, featured 
+articles, tagged items, single contact, search and single article pages. 
+It can load the content dynamically into the layout. Enable the dynamic 
+content for a layout element in Advanced - DYNAMIC CONTENT.
+
+
+YOOtheme LIBRARY
+----------------
+
+The content of the library are saves of pages/sections/elements which 
+are not linked to specific pages. In library manager the "CURRENT 
+LAYOUT" indicator shows whether a saved layout is identical to the 
+current one. It's not possible to edit a saved page/section/element, we 
+must insert it, change it and save it overwriting the old version.
+It's possible to download a layout as .json file, and upload it to 
+another site. Before inserting a layout, verify the dropdown box:
+"Replace layout"
+"Insert at the top"
+"Insert at the bottom"
+
+
+YOOtheme MENUS
+--------------
+
+You can set the positions for your menus:
+- Navbar: show menu in navbar.
+- Header: show menu in header.
+- Toolbar Left, Right: show menu in toolbar above header.
+- Dialog: show menu with toggle icon.
+- Mobile Navbar, Header, Dialog: mobile equivalents of above positions.
+                                 Usually set to Dialog and limit the 
+                                 images width, try Inline SVG.
+
+Note: the above set positions are not synchronized with the positions 
+set in Joomla menu modules, you can set the Joomla menu module position 
+to :: None :: or remove it completely. Remember that only a default Home 
+menu entry is always necessary.
+
+
+YOOtheme MODULES
+----------------
+
+The Modules panel shows a list of all module positions and their 
+assigned modules. There is also the Builder Module to create any layout 
+you want. On the right of each module there are three dots to edit the 
+module in joomla and assign a module position:
+- toolbar-left, toolbar-right: above the header.
+- logo, navbar, header, dialog: all the positions inside the header.
+  (append -mobile to have all the positions inside the mobile header).
+- sidebar: position next to the main output for normal Joomla content
+           (content which is not from the Page Builder or a Template).
+- top, bottom: above and below the main output.
+- builder-1 to builder-6: used by Page Builder "Module Position" element.
+
+
+YOOtheme SETTINGS
+-----------------
+
+- Generate the API Key for your site, can also generate for localhost:
+  https://yootheme.com/shop/my-account/websites/
+  Set your API Key to enable YOOtheme Pro updates and to access the 
+  layout library as well as the Unsplash image library.
+  
+- Set the favicon.
+
+- Under Advanced - SYSTEM ASSETS make sure that Font Awesome icons get 
+  loaded if you want to use them like: <i class="fa-solid fa-house"></i>
+  Note: in Joomla 4 the Fontawesome 5 icons and in Joomla 5 the 
+        Fontawesome 6 icons are included from the local file system.
+  Pick: https://fontawesome.com/v6/search
+
+- Press Advanced - CLEAR CACHE to rebuild images, especially if you 
+  change an image and keep the same name.
+
+- Can set your Google Maps API key to use Google Maps instead of 
+  OpenStreetMap.
+  
+- Add custom js:
+  UIkit.icon.add('my-icon-name','<img src="images/icons/infinity.svg"/>');
+  That permits entering my-icon-name in the Icon Element, the icon 
+  cannot be chosen. 
+
+- Add custom css (inserted into templates/yootheme/css/theme*.css):
+  /* To selectively hide header and footer, add the hide-header-footer 
+     class to a Joomla menu entry under "Page Display" -> "Page Class". 
+     Hint: a under construction page can be realized assigning it to an 
+           entry of a dummy menu. That menu item is set as Home and has 
+           the hide-header-footer class. */
+  .hide-header-footer .tm-page > header, .hide-header-footer .tm-page > footer {
+    display: none !important;
+  }
+  /* Custom font placed into images/fonts/. Font format keywords:
+     https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/src#font_formats
+  */
+  @font-face {
+    font-family: 'Corsivo Ticino';
+    src: url('../../../images/fonts/CORSIVOTICINO.TTF') format('truetype');
+  }
+
+- A child theme does not have its own settings, the theme settings will 
+  stay the same. To make a child theme, create a templates/yootheme_NAME 
+  directory and select NAME under ADVANCED - CHILD THEME. When changing 
+  child themes, it may be necessary to modify something under STYLE to 
+  force an update of the files.
+  In the child theme directory it's possible to override YOOtheme with:
+  js/custom.js
+  css/custom.css
+  templates/*.php
+  fonts/custom-font.woff2
+  To use a custom font add the following to custom.css:
+  @font-face {
+    font-family: 'Custom Font';
+    src: url('../fonts/custom-font.woff2') format('woff2');
+  }
+
+Hint: to set a custom font in the style customizer, type the font name 
+      into the search field of the font picker and hit Enter (if your 
+      font name includes space characters, type it with quotes). 
+
+
+Breakpoints
+-----------
+
+- The breakpoints are set under STYLE - GLOBAL. It's better to not 
+  change them!
+
+- How the breakpoints compare to the four preview buttons:
+                               small=640px     = phone landscape
+  (768px) tablet portrait <    medium=960px    < tablet landscape (1024px)
+                               large=1200px    = laptop/desktop
+                               xlarge=1600px   != large screens is full width
+
+- Some STYLE properties have different values depending on the breakpoint:
+  style:     style applies for all devices.
+  @S  style: style overrides the above style for widths of 640px and larger.
+  @M  style: style overrides the above styles for widths of 960px and larger.
+  @L  style: style overrides the above styles for widths of 1200px and larger.
+  @XL style: style overrides the above styles for widths of 1600px and larger.
+
+- Elements usually have a Visibility setting, but sections and rows not,
+  use these css classes:
+  /* uk-hidden@s,   uk-visible@s:  affect Small devices and larger */
+  @media (min-width:640px) {                 @media (max-width:639px) {
+    .uk-hidden\@s {                            .uk-visible\@s {
+      display:none!important                     display:none!important
+    }                                          }
+  }                                          }
+  /* uk-hidden@m,   uk-visible@m:  affect Medium devices and larger */
+  @media (min-width:960px) {                 @media (max-width:959px) {
+    .uk-hidden\@m {                            .uk-visible\@m {
+      display:none!important                     display:none!important
+    }                                          }
+  }                                          }
+  /* uk-hidden@l,   uk-visible@l:  affect Large devices and larger */
+  @media (min-width:1200px) {                @media (max-width:1199px) {
+    .uk-hidden\@l {                            .uk-visible\@l {
+      display:none!important                     display:none!important
+    }                                          }
+  }                                          }
+  /* uk-hidden@xl,  uk-visible@xl: affect Xlarge devices and larger */
+  @media (min-width:1600px) {                @media (max-width:1599px) {
+    .uk-hidden\@xl {                           .uk-visible\@xl {
+      display:none!important                     display:none!important
+    }                                          }
+  }                                          }
+
+
+Text Editor
+-----------
+
+For text elements YOOtheme uses its own TinyMCE editor version, this one 
+has a fullscreen mode button which opens the editor configured in Joomla. 
+
+With JCE editor's "Styles" box it's possible to select classes defined 
+under "YOOtheme SETTINGS - Custom Code - CSS". 
+
+In "JCE - Default Profile - Features & Layout" it's possible to add the 
+missing "Joomla Editor Buttons" button which permits adding links to 
+Joomla content, note that the "Insert link" button can also do that, but 
+with less possibilities.
+
+
+Joomla Media Manager
+--------------------
+
+All Pro/Unsplash/Pexels images are downloaded to your local media folder. 
+
+Under joomla media manager Options add the missing file extensions.
+Maximum Size (in MB):   50
+Allowed Extensions:     svg (ico is already in this list)
+Legal Image Extensions: svg,ico
+Legal MIME Types:       image/svg+xml,image/svg,image/vnd.microsoft.icon
+Note: some SVG export tools omit <?xml version="1.0" encoding="utf-8"?>
+      at the beginning of a SVG, for this reason we need also: image/svg
+
+
+Multilanguage
+-------------
+
+To create a multilingual site just install the needed languages in 
+Joomla. Duplicate and translate articles and modules and assign them to 
+a specific language. Do not select a specific menu in YOOtheme Menus, 
+instead, use the Joomla module manager to publish a menu depending on 
+the current language in the navbar, dialog, navbar-mobile or 
+dialog-mobile position. The footer builder cannot be used for 
+multilingual sites. Instead, use Builder Modules and publish them in the 
+bottom position.
+
+https://yootheme.com/support/yootheme-pro/joomla/multilingual-sites
+https://www.youtube.com/watch?v=dexAhTocGjk
+
+
+Fast web development
+--------------------
+
+1. Set your Logo.
+2. Make a few Single Articles, assign them to your main menu and init 
+   their content with different PRO LAYOUTS.
+3. Choose a Footer from PRO LAYOUTS (filter by Footer).
+4. Under STYLE test all styles and set the one you like, see:
+   https://yootheme.com/joomla-templates
+5. Adapt the created pages with your text and images.
+
+
+One page site
+-------------
+
+Each section and element have a Advanced -> ID field. You can link to 
+each ID using a Joomla System Links -> URL menu item with the Link set 
+to #my-id. If you do not want to show the Home menu entry, move the 
+Home menu entry to a new Menu (for example call it Home Menu) but do not 
+associate a module to it.
+
+Note: YOOtheme Pro comes with smooth scrolling for all anchor links in 
+      menus.

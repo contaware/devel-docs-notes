@@ -1,0 +1,21 @@
+Relative and absolute file paths
+--------------------------------
+
+An absolute path:
+- Starts with a slash in Unix systems.
+- Starts with a drive letter, followed by a colon and a backslash in Windows.
+
+A relative path can start:
+- With double-dot meaning parent directory of current working directory.
+- With single-dot meaning current working directory.
+- Without dot:
+  1) dir/file.txt is equivalent to ./dir/file.txt
+  2) script.sh is NOT equivalent to ./script.sh in Unix systems because 
+     the PATH environment variable is checked first.
+  3) script.bat is equivalent to ./script.bat in Windows because the 
+     the current working directory is checked before PATH.
+
+Windows drive relative path:
+A drive letter, followed by a colon and without a backslash, means the current 
+working directory of the drive. For example: 
+C:foo.txt or C:dir\foo.txt are under the given drive's current working directory.

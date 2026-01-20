@@ -1,0 +1,416 @@
+Docker is used to contain an application with all its dependencies 
+isolated in an image. It's not a VM which emulates an entire machine,
+docker are made of normal processes running on your normal system.
+
+Images are templates for the containers, so we can have several 
+containers which are based on the same image. We cannot update a 
+container's image, we can only create new images and create new 
+containers from the new images.
+
+
+Install
+-------
+
+Usually you want to install Docker Desktop, see instructions for your system:
+https://docs.docker.com/desktop/
+
+But you can also only install the Docker Engine:
+https://docs.docker.com/engine/install/
+
+Difference: Docker Desktop runs the Docker Engine in a virtual machine 
+            and adds a GUI. Docker Desktop must be running also to use 
+            the CLI commands!
+
+
+Use Docker Desktop for Windows
+------------------------------
+
+The Docker Desktop for Windows has WSL 2 integration. Check: 
+Settings - Resources - WSL integration. 
+
+Storing your project files in the WSL 2 filesystem (but not under /mnt), 
+improves the performance for bind mounts and gives better file 
+permissions compatibility. 
+
+It's possible to run docker commands from the PowerShell or from 
+a WSL terminal. In the WSL Terminal, running docker.exe, uses the 
+Windows docker client, while running docker without an extension, uses 
+the Linux docker client. From a performance point of view, it makes no 
+difference. Convince yourself about the two client versions by testing: 
+$ docker version 
+vs:
+$ docker.exe version
+
+
+Images
+------
+
+Get an image without running it, overwrites a local image if a newer 
+one exists:
+$ docker pull NAME[:TAG|@DIGEST]
+Notes: - tags are mutable while digests are immutable.
+       - existing containers will not be updated with new images,
+         to update a container just re-create it.
+
+List images:
+$ docker images
+$ docker images --digests  # show also digests
+
+Remove image:
+$ docker rmi IMAGE
+
+Deleting an image will do nothing to the build cache content which 
+continues to occupy space, use this command to remove all build cache:
+$ docker builder prune --all
+$ docker system df  # to check the used space
+
+Show the history of an image:
+$ docker history NAME[:TAG|@DIGEST]
+
+Search images:
+$ docker search name
+Note: the docker search command does not show image tags (versions), 
+      but you can find them at hub.docker.com.
+Hint: if size matters, use images with slim in the tag name, and for 
+      really small images look for alpine in the tag name.
+      
+Inspect an image:
+$ docker image inspect NAME[:TAG|@DIGEST]
+- You can check whether an image has Volumes declared, and avoid the 
+  creation of anonymous volumes by mapping them to your Docker Host.
+- Other use is to check whether it has an ENTRYPOINT or a CMD.
+
+
+Run a container
+---------------
+
+Create a container from an image and start it:
+$ docker run hello-world                # pull image only if missing
+$ docker run --pull=always hello-world  # pull image before running
+
+See all running containers:
+$ docker ps
+
+Include also stopped ones:
+$ docker ps -a
+
+Instead of getting the random name, we can specify one:
+$ docker run --name my-cool-name hello-world
+
+Instruct to delete the container when stopping:
+$ docker run --rm hello-world
+
+Restart the container on failure or when Docker itself restarts:
+$ docker run --restart=always nginx
+
+Choose a specific version through tags or digests:
+$ docker run NAME[:TAG|@DIGEST]
+
+Pass environment variables, command and arguments:
+$ docker run -e ABC=123 -e DEF=456 python python -c "import os; print(os.environ)"
+
+By default the run command attaches to STDOUT and STDERR. 
+To run in background (-d stands for detached):
+$ docker run -d hello-world
+
+The -i flag keeps the container's STDIN open, and lets you send input to 
+the container through standard input:
+$ echo hi | docker run --rm -i busybox cat
+
+The -t flag attaches a pseudo-TTY to the container, connecting your 
+terminal to the I/O streams of the container.
+The -t flag is usually used together with -i, rarely alone:
+$ docker run -it debian passwd root
+If you use -t, TTY must be supported:
+$ echo hi | docker run --rm -it busybox cat   # FAILS: pipe is not a TTY
+$ docker run --rm -it busybox tr "a-z" "A-Z"  # OK: Ctrl+D to terminate
+
+
+Stop a container
+----------------
+
+$ docker stop name-or-id
+
+
+Start a stopped container
+-------------------------
+
+By default the container gets started in detached mode:
+$ docker start name-or-id
+
+Attach STDIN:
+$ docker start -i name-or-id
+
+Attach STDOUT/STDERR and forward signals:
+$ docker start -a name-or-id
+
+Note: the environment variables, the command and the arguments passed 
+      with "docker run" are used when calling "docker start".
+
+
+Remove container(s)
+-------------------
+
+Remove stopped container:
+$ docker rm name-or-id
+
+Remove all stopped containers:
+$ docker container prune
+
+
+Networking and port forward
+---------------------------
+
+Each container is assigned its own IP address, get it from inside a 
+container with:
+$ cat /etc/hosts
+
+Containers started with docker run are added to the default network 
+bridge (named bridge), they can only access each other by IP. 
+Containers started with docker run and the --network option or started 
+by Docker Compose are added to a custom network bridge, they can access 
+each other by IP, hostname or service name.
+$ docker network create mynet
+$ docker network ls
+$ docker run --name busybox --network mynet --rm -it busybox
+$ docker network rm mynet
+
+Containers can access your host's LAN and the internet with the host IP 
+or host.docker.internal.
+The host can only access the containers by port forwarding:
+$ docker run -p 5000:80 nginx   # host port 5000 -> container port 80
+
+
+Bind mounts and volumes for persistence
+---------------------------------------
+
+When stopping and restarting a container there is persistence, but when 
+creating a new container with "docker run" nothing is retained from your 
+previous container. Test single container persistence with docker start/stop:
+$ docker run python python -c 'fn="/data.txt"; f=open(fn, "a"); f.write("ran\n"); f.close(); print(open(fn).read())'
+
+Bind mount to share files between containers:
+$ docker run -v ./host-dir:/container-absolute-dir python python -c 'fn="/container-absolute-dir/data.txt"; f=open(fn, "a"); f.write("ran\n"); f.close(); print(open(fn).read())'
+Notes: - host-dir must be a relative or a absolute directory path
+         (if host-dir is non-existing it will be created automatically)
+       - container pre-existing files are obscured by the mount
+       - to mount read-only append :ro
+       - it may be necessary to allow the host directory here:
+         Docker Desktop -> Preferences -> Resources -> File sharing
+
+Use Docker managed volumes by just providing a name:
+$ docker run -v vol-name:/container-absolute-dir python python -c 'fn="/container-absolute-dir/data.txt"; f=open(fn, "a"); f.write("ran\n"); f.close(); print(open(fn).read())'
+
+Use Docker managed anonymous volumes by not providing a name:
+$ docker run -v /container-absolute-dir python python -c 'fn="/container-absolute-dir/data.txt"; f=open(fn, "a"); f.write("ran\n"); f.close(); print(open(fn).read())'
+Notes: - a new random name volume is created for each new container.
+       - the volume is deleted on container removal only if the 
+         container was run with the --rm option.
+
+To list Docker managed volumes:
+$ docker volume ls
+
+To remove a Docker managed volume:
+$ docker volume remove vol-name
+
+For the owners of files/folders that participate in a bind mount,
+there are two type of mapping, the used type depends from the platform: 
+1. Owner in host bidirectionally maps to the owner in the container. 
+   It follows that in the host and also in the container you may see a 
+   numeric UID if the corresponding user does not exist.
+2. In the host, the owner is the current user, and in the container, 
+   the owner is root or the Dockerfile configured USER.
+
+
+Custom images
+-------------
+
+All custom images start from a base image referred by Dockerfile's FROM:
+https://docs.docker.com/build/building/base-images/#create-a-minimal-base-image-using-scratch
+
+Here a sample Dockerfile:
+
+# Dockerfile comments use the hashtag, but it works only at the beginning of a line!
+
+# Base our image on this image
+FROM nginx:1.27.0
+
+# This targets the docker file system, it is executed while building the image
+RUN rm -rf /usr/share/nginx/html/
+
+# - Copy source is relative to build context.
+# - COPY always overwrites.
+# - Multiple source files or directories are allowed when last argument 
+#   is a destination directory.
+# - If destination doesn't exist, it's created, along with all missing 
+#   directories in its path.
+# - If the source is a file, and the destination doesn't end with a 
+#   trailing slash, the source file will be written to the destination 
+#   path as a file.
+COPY index.html /usr/share/nginx/html/
+
+# ENTRYPOINT and CMD both do execute a command when a container starts
+# - CMD is overridden by a command passed to docker run.
+# - If ENTRYPOINT is specified in exec form, the CMD/docker run 
+#   command line is appended, otherwise it is ignored.
+# - The shell form invokes a command shell, whereas the exec form does not.
+# 1. Exec form
+ENTRYPOINT ["executable","param1","param2"]
+CMD ["executable","param1","param2"]
+# 2. Shell form
+ENTRYPOINT command param1 param2
+CMD command param1 param2
+
+# Set the working directory inside the container for RUN, CMD, ENTRYPOINT, COPY and ADD
+# (can be used multiple times in a Dockerfile)
+WORKDIR /path/to/workdir
+
+# After this point the given user determines who will execute commands 
+# for the image build process through RUN and it will also determine 
+# who runs CMD/ENTRYPOINT. The user and group are with respect to the 
+# container, the default user is root and group is optional.
+# (can be used multiple times in a Dockerfile)
+USER user:group
+
+Execute the docker build command in current directory:
+$ docker build -t myimage-name .     # that looks after Dockerfile
+$ docker build -t myimage-name -f ./Dockerfile .
+
+For the ADD and COPY instructions the builder checks whether the source 
+files changed and invalidates the cache for us. But for RUN instructions 
+the cache isn't invalidated automatically. See:
+https://docs.docker.com/build/cache/
+https://docs.docker.com/build/cache/invalidation/
+https://docs.docker.com/build/building/best-practices/
+Invalidate the build cache like:
+$ docker build -t myimage-name --no-cache .
+
+Pull the image referenced using FROM ensuring we get the latest version:
+$ docker build -t myimage-name --pull .
+
+
+Docker compose
+--------------
+
+To automate the above commands, we can place them all in a compose.yaml 
+file which supports multiple containers called services:
+
+services:
+  my-service-name1:
+    image: python    # use this image
+    command: python -c 'fn="/container-absolute-dir/data.txt"; f=open(fn, "a"); f.write("ran\n"); f.close(); print(open(fn).read())'
+    depends_on:      # this container is started after the listed ones are started
+      - my-service-name2
+    volumes:
+      - 'vol-name:/container-absolute-dir1'
+      - 'C:\Users\Username\Downloads\test:/container-absolute-dir2'
+  my-service-name2:
+    build:           # build and use custom image, simple form is build: .
+      context: .     # build image with Dockerfile found at this path
+      dockerfile: webapp.Dockerfile      # if it is not named Dockerfile
+      no_cache: true # same as: docker build --no-cache .
+      pull: true     # same as: docker build --pull .
+    restart: always  # same as: docker run --restart=always BuiltImage
+    ports:
+      - "5000:80"    # for ports always use quotes to avoid conversion to base-60
+    environment:
+      - VAR1=HI MAN  # even if there are spaces, quotes are not necessary
+      - VAR2=HI GIRL # even if there are spaces, quotes are not necessary
+    env_file:
+      - ./.env       # paths relative to the location of compose.yaml
+volumes:             # needed if using Docker volumes, not when using bind mounts
+  vol-name:          # does not need anything underneath this
+
+Create and start all containers:
+$ docker compose up -d            # if we are inside compose.yaml's directory
+$ docker compose -f /path/to/compose.yaml up
+$ docker compose up --build       # rebuild custom images if already existing
+$ docker compose up --pull=always # pull images before running
+
+Stop all containers:
+$ docker compose stop
+
+Start all containers:
+$ docker compose start
+
+Delete all containers (Docker volumes remain):
+$ docker compose down
+
+If startup order is important use healthcheck:
+https://docs.docker.com/compose/how-tos/startup-order/
+
+In general you only need to quote strings that could otherwise be 
+misinterpreted or replaced with something unwanted.
+1. "C:\\My App"  # double-quotes support escape sequences; $VAR or ${VAR} are replaced
+   'C:\My App'   # single-quotes do not support escape sequences
+   C:\My App     # unquoted works also if there are spaces; $VAR or ${VAR} are replaced
+2. Some strings need quotes otherwise they are interpreted as other types:
+   "yes"         # "yes" is a string, yes is the boolean true
+   "no"          # "no" is a string, no is the boolean false
+   "123"         # "123" is a string, 123 is an integer number
+   "1.0"         # "1.0" is a string, 1.0 is a float number
+   "21:21"       # "21:21" is a string, 21:21 is a sexagesimal (base-60) number
+3. Inside the environment file specified by env_file the format is:
+   VAR=MY VAL    # can comment like here and MY VAL can optionally be quoted
+4. With the array syntax, optional quotes go around what's after the hyphen:
+   - VAR1=A B C
+   - 'VAR2=D E F'
+   - VAR3="GHI"  # these quotes will be part of VAR3
+5. With the key/value syntax, optional quotes go around the value:
+   VAR1: A B C
+   VAR2: "D E F"
+   VAR3: G'H' I  # these quotes will be part of VAR3
+
+
+Execute command / run terminal
+------------------------------
+
+To execute commands in a running container:
+$ docker exec -it name-or-id /bin/bash
+$ docker compose exec service-name /bin/bash
+       
+Start image and execute command:
+$ docker run -it python /bin/bash # the interpreter is started when not providing /bin/bash 
+$ docker run -it ubuntu           # automatically starts the shell
+$ docker run -it busybox          # automatically starts the shell
+
+Start service and execute command (service-name from compose.yaml):
+$ docker compose run --rm service-name /bin/bash
+Notes: - use --rm to remove the newly created container when done.
+       - optional command overrides the one defined in service config.
+       - ports specified in service config are not created.
+
+Hint: use exit command to quit the shell.
+
+
+Save/Load images
+----------------
+
+Save an image to a tar archive:
+$ docker save -o myimage.tar myimage
+$ docker save myimage | gzip > myimage.tar.gz
+
+Load an image from a tar archive:
+$ docker load -i myimage.tar
+
+
+Backup/Restore volumes
+----------------------
+
+Locations:
+- Windows: \\wsl$\docker-desktop\mnt\docker-desktop-disk\data\docker\volumes
+- Linux: /var/lib/docker/volumes/
+  Note: on Linux Docker Desktop runs in a KVM virtual machine instead of 
+        running on the host, so you cannot access the location.
+
+Official approaches:
+1. https://docs.docker.com/engine/storage/volumes/#back-up-restore-or-migrate-data-volumes
+2. Use Docker Desktop to export and import volumes.
+
+
+Examples
+--------
+
+Run Wine over RDP:
+$ docker run --env="RDP_SERVER=yes" --publish="3390:3389" --platform="linux/amd64" -d scottyhardy/docker-wine
+Note: use port 3390 to avoid conflicts in case we run the image on Windows.

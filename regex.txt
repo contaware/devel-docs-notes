@@ -1,0 +1,265 @@
+Common regular expression (regex) syntax
+----------------------------------------
+
+Meta-characters (escape them with a backslash when used as literals):
+.               matches any single character except line break characters 
+                (POSIX regex engines do also match line breaks).
+[..]            matches any character in the brackets, use ranges like 
+                [a-z]. POSIX regex engines do not permit escape 
+                sequences inside bracket expressions; instead, they 
+                implement POSIX character classes that are exclusively 
+                allowed within bracket expressions:
+                [:word:]  is \w      [:space:] is \s
+                [:digit:] is \d      [:blank:] is space \t
+[^..]           matches any character not in the brackets.
+\t              matches a horizontal tab.
+\r              matches a carriage return.
+\n              matches a linefeed.
+\d              same as [0-9], \D matches any non-digit.
+\w              same as [A-Za-z0-9_], \W matches any non-word character.
+\s              matches any whitespace, \S matches any non-whitespace.
+                (whitespaces are: space tabs form-feed \n \r)
+alt1|alt2|alt3  tries to match the alternatives from left to right. The 
+                pipe meta-character has lowest priority, use parentheses.
+?               matches 0 or 1 times the single preceding element.
+*               matches 0 or more times     "
++               matches 1 or more times     "
+{n}             matches exactly n times     "
+{n,}            matches n or more times     "
+{n,m}           matches n to m times        "
+^               matches the start.
+$               matches the end.
+\b              matches a word boundary. This is the position between a 
+                word character and a non-word character.
+\B              matches any position that is not a word boundary.
+(pattern)       capturing group: pattern must match.
+\1 \2 .. \9     backreference capturing group match in sequential order.
+(?:pattern)     non-capturing group: pattern must match, but no group is 
+                created, thus there is no backreference for it.
+(?>pattern)     atomic non-capturing group: its tokens do not backtrack,
+                a(?>bc|b)c matches abcc but not abc
+(?=pattern)     lookahead: pattern must match ahead of current position, 
+                but no characters are consumed and no group is created.
+(?!pattern)     negative lookahead (it does the exact opposite matches).
+(?<=pattern)    lookbehind: pattern must match behind of current 
+                position, but no characters are consumed and no group is 
+                created. Be aware that many regex engines require the 
+                width of the pattern to be known in advance.
+(?<!pattern)    negative lookbehind (it does the exact opposite matches).
+
+Zero-length matches:
+- Match positions:  0 1 2 3 4 5
+                    |h|e|l|l|o|
+  The "hello" match is written as match 0-5, the next match will start 
+  at position 5, and thus written as match 5-x. A zero-length match has 
+  the same start and end positions, for example match 1-1.
+- A match position gets incremented by the match size, but in case of a 
+  zero-length match it must be increment by one character. 
+- /.*/g for "hello" gives two matches, one is the full match 0-5 and 
+  the second is the empty match 5-5.
+- /\d*/g for "abc" returns 4 empty matches: match 0-0, match 1-1, 
+  match 2-2 and match 3-3.
+- \b \B ^ $ and lookarounds (lookahead/lookbehind) do not consume 
+  characters, from the current position they look ahead, behind or both. 
+  This means that when a regex only consists of them, it can result in 
+  zero-length matches. That can be used to get overlapping groups: 
+  /(?=(\w{2}))/g for "abc" gives match 0-0 with group "ab" and match 1-1 
+  with group "bc".
+
+Quantifiers:
+- The standard quantifiers in regular expressions are greedy, meaning 
+  they match as much as they can, and on match failure, they backtrack 
+  by decreasing the repetitions a step at the time in the attempt to 
+  match the remaining regex.
+- Lazy quantifiers match as little as possible, and on match failure, 
+  they backtrack by increasing the repetitions a step at the time in the 
+  attempt to match the remaining regex.
+  ??  *?  +?  {n,}?  {n,m}?
+- Possessive quantifiers are a notational convenience to place an atomic 
+  group around a single quantifier, X*+ and (?>X*) are equivalent.
+  ?+  *+  ++  {n,}+  {n,m}+
+
+Modifiers:
+- The "g" flag indicates that the regular expression should be tested
+  against all possible matches in a string. 
+- The "i" flag means to ignore the case. 
+- The "m" flag specifies a multiline match. If it is used, ^ and $ 
+  change from matching at only the start or end of the entire string 
+  to the start or end of any line within the string. 
+- The "s" flag makes the dot also match line breaks.
+Note: The "g" flag may be replaced by two distinct functions and instead 
+      of "i" "m" "s" the regex functions may have a flags parameter.
+
+
+Javascript
+----------
+
+let text = "E-mail is support@example.com\n or help@example.com";
+let pattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/gims;
+let matches = text.match(pattern);
+console.log(matches);
+
+
+PHP
+---
+
+$text = "E-mail is support@example.com\n or help@example.com";
+$pattern = '/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/ims';
+if (preg_match_all($pattern, $text, $matches)) 
+{
+    // $matches[0] is an array with all the matches
+    // $matches[1]..$matches[count($matches)-1] grouping arrays if available
+    print_r($matches[0]);
+}
+
+
+Python
+------
+
+import re
+text = "E-mail is support@example.com\n or help@example.com"
+pattern = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+matches = re.findall(pattern, text, 
+          flags=re.IGNORECASE | re.MULTILINE | re.DOTALL | re.ASCII)
+print(matches)
+ 
+Note: re.ASCII makes \w, \W, \b, \B, \d, \D, \s and \S perform ASCII-only 
+      matching instead of the python default full unicode matching.
+
+
+C++
+---
+
+#include <iostream>
+#include <string>
+#include <regex>
+std::string text("E-mail is support@example.com\n or help@example.com");
+std::regex pattern(R"([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$)",
+                   std::regex::icase | std::regex::multiline);
+std::smatch matches;
+while (std::regex_search(text, matches, pattern))
+{
+    // matches[0] is the entire match
+    // matches[1]..matches[matches.size()-1] groupings if available
+    for (auto str : matches)
+        std::cout << str << std::endl;
+
+    // Next match
+    text = matches.suffix();
+}
+
+Note: Visual Studio C++ is multiline by default, even if it should not be 
+      according to C++ standard, and it is missing std::regex::multiline 
+      https://developercommunity.visualstudio.com/t/multiline-c/268592
+      A std::regex::dotall flag is not yet in the C++ standard.
+
+
+Shell
+-----
+
+$ printf 'E-mail is support@example.com\n or help@example.com' | grep -E -i '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+Notes: - "m" and "s" flags make no sense because grep works line by line. 
+       - "g" flag makes no sense because grep outputs the whole line, 
+         except for some grep versions which have a -o option that 
+         outputs each match on a line, and thus gets global.
+       - Instead of -E, with GNU grep we can use -P to get PCRE regex.
+
+
+Windows Command Prompt
+----------------------
+
+findstr behaves like grep, but with many particularities:
+$ help | findstr /R /I "^t[ryi].*\.$"
+Notes: - [a-z] matches case-insensitive (except the Z) and 
+         [A-Z] matches case-insensitive (except the a).
+       - Character classes like \w, \d or \s are not supported.
+       - \< matches a word begin, but works only at begin of pattern and
+         \> matches a word end, but works only at end of pattern.
+       - Repetitions with + ? {..} are not supported.
+       - Alternation is implemented with spaces instead of the pipe, 
+         write the regex like /C:"pattern1" /C:"pattern2" to get literal 
+         spaces and alternation from the two patterns.
+
+
+Common regex
+------------
+
+Number:
+[+-]?[0-9]*\.?[0-9]+
+
+Time:
+(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]
+
+Date dd-MM-YYYY, 01-01-1900 to 31-12-2099:
+(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[012])-(19|20)\d\d
+
+Percentage between 1% and 100%:
+(100|[1-9][0-9]?)(?=%)
+
+Url:
+https?:\/\/([\w.\/?=-]|(%[\da-fA-F]{2}))+
+
+E-Mail:
+[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}
+
+IP:
+((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])
+Note: numbers are written from biggest to smallest to first match the biggest alternative.
+
+Group into directory and filename:
+(.+)\/([^\/]+)
+
+HTML tags:
+<.*?>
+
+Double-quoted text:
+"[^"]*"
+
+Match whole line(s) like grep:
+^.*Pattern.*$
+
+Match consecutive duplicated lines:
+^(.*)(\r?\n\1)+$
+
+Splitting text into sentences:
+(?<!\S)[\s\S]*?[.!?](?!\S)
+
+Multiple consecutive equal words:
+\b(\w+)(\s+\1\b)+
+
+Find two words near each other:
+\bword1\W+(\w+\W+){1,6}?word2\b
+
+Matching html (set the dot-all flag):
+<html>(?>.*?<head>)(?>.*?<title>)(?>.*?<\/title>)(?>.*?<\/head>)(?>.*?<body[^>]*>)(?>.*?<\/body>).*?<\/html>
+Note: since the lazy dots are in atomic groups, the regex engine has 
+      discarded their backtracking positions. That's good when the regex 
+      fails because the lazy dots in the atomic groups will not try to 
+      expand.
+
+Whitespace word boundary:
+(?<!\S)\w+(?!\S)
+The ^ and $ meta-characters are never part of a character class because 
+they are not literal characters. Line breaks, on the other hand, can be 
+part of character classes. It follows that a positive lookaround, 
+consisting only of a character class, will never match the start or end 
+of a string, but it can match the start or end of a line. Conversely, a 
+negative lookaround can match both: 
+1. (?=\s) matches before each whitespace.
+2. (?!\s) matches everywhere, except before each whitespace. Note that 
+   it matches also at the end of the string because by definition it 
+   must be the exact opposite of (?=\s)
+3. (?!\S) matches before each whitespace, but it continues to match at 
+   the end of the string because just inverting the character class does 
+   not change that.
+Note: it's possible to explain it in the same way for the negative 
+      lookbehind case.
+
+
+Resources
+---------
+
+https://www.regular-expressions.info
+https://regex101.com
+https://marketplace.visualstudio.com/items?itemName=chrmarti.regex
+https://stackoverflow.com/questions/8844868/what-are-the-undocumented-features-and-limitations-of-the-windows-findstr-comman

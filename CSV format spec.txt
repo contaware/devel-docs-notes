@@ -1,0 +1,30 @@
+Comma separated value (CSV) format spec
+---------------------------------------
+
+Data fields are separated by commas, and groups of data fields are 
+separated by line breaks, often CRLF.
+There may be an optional header line appearing as the first line of the 
+file with the same format as normal record lines.
+Each line should contain the same number of fields throughout the file.
+The last field of a record MUST NOT be followed by a comma. The last 
+record in a file may or may not have an ending line break.
+
+Spaces are considered part of a field and should not be ignored. 
+Fields containing line breaks, commas or double-quotes MUST be enclosed 
+in double-quotes and the containing double-quotes MUST then be escaped 
+by another double-quote. 
+For the other fields the double-quotes remain optional.
+If a data field contains only two double-quotes, then the data field is 
+processed in the same way as an empty field.
+
+Sometimes instead of the commas, other separators are employed, Excel 
+supports adding a first line to indicate the used separator:
+sep=;
+
+Spec:
+https://datatracker.ietf.org/doc/html/rfc4180
+The spec does not use the word "must", it uses "may" and "should", for 
+this reason we sometimes see fields not enclosed in double-quotes that 
+contain un-escaped double-quotes, obviously not at the beginning or end 
+of the fields. A good parser should convert them to double-quoted fields 
+escaping the containing double-quotes.

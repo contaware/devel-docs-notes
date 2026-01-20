@@ -1,0 +1,59 @@
+HTML
+----
+
+!                  write html5 skeleton.
+
+c                  write comment: <!-- -->
+
+tag                write tag.
+
+tag.class          write tag with given class.
+tag.class1.class2  write tag with given classes.
+.class             write div with given class.
+
+tag#id             write tag with given id.
+#id                write div with given id.
+
+tag[attribute]     write tag with given attribute.
+[attribute]        write div with given attribute.
+
+tag1+tag2          write tag1 and after it tag2.
+tag*5              write five tags one after the other.
+
+tag1>tag2          write tag1 with tag2 as a child (the ">" points inwards).
+header>nav^main    use the "up pointing" arrow to climb-up the hierarchy.
+(header>nav)+main  the same as above but with grouping parenthesis.
+
+tag{some text}     write tag with given text inside it.
+ul>li*5{item$}     write a <ul> with five <li> in it having numbered items.
+                   Hint: use $$ to zero pad the numbers.
+
+lorem              write the lorem text.
+lorem10            write 10 lorem words.
+li*5>lorem2        write five <li> with two different words each.
+
+Wrap a selection with a tag:
+In VS Code open Palette (F1) and type "wrap" to get "Emmet: Wrap with Abbreviation"
+
+
+CSS
+---
+
+Type the abbreviation with a colon:
+c:                 color: #...;
+c:r                color: rgb(., ., .);
+c:ra               color: rgba(., ., ., .);
+bg:                background: #...;
+op:                opacity: ...;
+ta:                text-align: ...;
+w:                 width: ...;
+w100p:             width: 100%;
+h:                 height: ...;
+m:                 margin: ...;
+m10:               margin: 10px;
+mt:                margin-top: ...;
+mt10:              margin-top: 10px;
+p:                 padding: ...;
+bd:                border: ...;
+d:                 display: ...;
+pos:               position: ...;

@@ -1,0 +1,29 @@
+PATH environment variable
+-------------------------
+
+A PATH consists of a series of colon-separated (Linux) or 
+semicolon-separated (Windows) absolute paths. For both Linux and Windows 
+the PATH is searched from the beginning to the end and the first 
+matching executable will be run. In Windows there is a System PATH and a 
+User PATH, the User Path is appended to the System PATH. Thus the System 
+PATH has priority over the User PATH. Linux is case-sensitive with 
+respect to environment variable names, while Windows is case-insensitive. 
+
+View (for Windows it shows the combined System PATH;User PATH):
+$ echo $PATH
+$ echo %PATH%
+
+Update:
+- For Linux add it to ~/.profile or ~/.bash_profile like:
+  PATH=$PATH:$HOME/bin:/usr/test
+- For Windows start the env dialog or use the path command.
+Hint: terminals can cache the PATH, always restart the terminal when 
+      updating the PATH.
+
+Command execution:
+- Windows first checks the current working directory, then the PATH. 
+- Linux does not check the current working directory before PATH.
+
+Command location:
+$ which command
+$ where command
