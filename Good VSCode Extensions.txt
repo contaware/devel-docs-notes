@@ -4,12 +4,8 @@ Good VSCode Extensions
 autoDocstring - Python Docstring Generator (Nils Werner)
   - Type """ to generate a docString, use TAB to fill next field.
 Batch Runner (Nils Soderman)
-Bootstrap IntelliSense (Hosain Hossaini)
 C/C++ (microsoft.com)
 Code Spell Checker (streetsidesoftware.com)
-CSS Peek (Pranay Prakash)
-  - Right-click id/class to "Go to Definition".
-  - CTRL+hover to see id/class definition and click to jump to it.
 Draw.io Integration (Henning Dieterichs)
 EJS language support (DigitalBrainstem)
 ESLint (microsoft.com)
@@ -27,6 +23,22 @@ Graphviz Interactive Preview (tintinweb)
   - To preview .dot files.
 Hex Editor (Microsoft)
   - They are working on diff: https://github.com/microsoft/vscode-hexeditor/pull/522
+HTML CSS Support (ecmel)
+  - CSS IDs/classes auto-completion from <style> tag content and from 
+    css files configured in settings.json (User or Workspace). The local 
+    file paths are relative to the project's root and support globbing 
+    (* does not match path separator, while ** does):
+    "css.styleSheets": [
+        "*.css",
+        "css/*.css",
+        "**/*.css",
+        "https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.css"
+    ]
+  - Configure languages in settings.json (User or Workspace):
+    "css.enabledLanguages": [
+        "html", "php"
+    ]
+  - Right-click ID/class and choose "Go to Definition" (F12) to jump to it.
 HTMLHint (HTMLHint)
   - HTML static analysis tool.
 Intel HEX format (keroc)
