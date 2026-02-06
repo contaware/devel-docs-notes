@@ -35,6 +35,9 @@ li*5>lorem2        write five <li> with two different words each.
 Wrap a selection with a tag:
 In VS Code open Palette (F1) and type "wrap" to get "Emmet: Wrap with Abbreviation"
 
+Goto to matching tag pair:
+In VS Code open Palette (F1) and type "pair" to get "Emmet: Go to Matching Pair"
+
 
 CSS
 ---
