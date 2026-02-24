@@ -81,8 +81,6 @@ Rech Batch
     Disable "Windows Bat Language Basics"
 Regex Previewer (Christof Marti)
 ShellCheck (Timon Wong)
-vscode-random (Jorge Rebocho)
-  - Right-click menu or press F1 and type random.
 Windsurf Plugin (formerly Codeium)
   - AI Coding Autocomplete and Chat for Python, JavaScript, and more.
 Wokwi Simulator (wokwi.com)
