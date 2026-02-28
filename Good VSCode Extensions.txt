@@ -4,6 +4,8 @@ Good VSCode Extensions
 autoDocstring - Python Docstring Generator (Nils Werner)
   - Type """ to generate a docString, use TAB to fill next field.
 Batch Runner (Nils Soderman)
+Continue (continue.dev)
+  - AI coding assistant which can connect to Local AI like LM Studio.
 C/C++ (microsoft.com)
 Code Spell Checker (streetsidesoftware.com)
 Draw.io Integration (Henning Dieterichs)
@@ -83,4 +85,5 @@ Regex Previewer (Christof Marti)
 ShellCheck (Timon Wong)
 Windsurf Plugin (formerly Codeium)
   - AI Coding Autocomplete and Chat for Python, JavaScript, and more.
+  - Extension is in maintenance mode, use their VSCode fork called Windsurf Editor.
 Wokwi Simulator (wokwi.com)
