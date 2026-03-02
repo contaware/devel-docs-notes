@@ -8,6 +8,9 @@ Continue (continue.dev)
   - AI coding assistant which can connect to Local AI like LM Studio.
 C/C++ (microsoft.com)
 Code Spell Checker (streetsidesoftware.com)
+  - By default it comes with English and lorem.
+  - Additional languages must be downloaded and configured in your settings:
+    "cSpell.language": "en,de,it,lorem",
 Draw.io Integration (Henning Dieterichs)
 EJS language support (DigitalBrainstem)
 ESLint (microsoft.com)
