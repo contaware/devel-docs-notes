@@ -188,6 +188,7 @@ Records update
 --------------
 
 UPDATE albums SET release_year = 1982;    -- update all rows
+UPDATE albums SET name = 'U2 solo', release_year = 1997 WHERE id = 5;
 UPDATE tbl SET my_datetime = 'YYYY-MM-DD HH:MI:SS' WHERE id = 1;
 
 
