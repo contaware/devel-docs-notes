@@ -166,7 +166,6 @@ ALTER TABLE bands MODIFY COLUMN another_column VARCHAR(255);
 ALTER TABLE bands ALTER COLUMN another_column VARCHAR(255); -- for MSSQL
 ALTER TABLE bands DROP COLUMN another_column;
 DROP TABLE bands;
-DROP TABLE IF EXISTS bands; -- avoid error when table does not exist
 
 
 Records insert
@@ -197,6 +196,23 @@ Records delete
 
 DELETE FROM albums;                       -- delete all rows
 DELETE FROM albums WHERE id = 5;
+
+
+Avoid errors
+------------
+
+Some DBMS (Database Management Systems) support additional keywords 
+that are especially useful when partially restoring backups:
+
+CREATE TABLE IF NOT EXISTS bands (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
+);
+DROP TABLE IF EXISTS bands;
+ALTER TABLE bands ADD CONSTRAINT fk_band FOREIGN KEY IF NOT EXISTS (band_id) REFERENCES bands(id);
+INSERT IGNORE INTO bands (id, name) VALUES (1, 'Iron Maiden');                      -- MySQL
+INSERT OR IGNORE INTO bands (id, name) VALUES (1, 'Iron Maiden');                   -- SQLite
+INSERT INTO bands (id, name) VALUES (1, 'Iron Maiden') ON CONFLICT (id) DO NOTHING; -- PostgreSQL
 
 
 Records select
