@@ -86,7 +86,4 @@ Rech Batch
     Disable "Windows Bat Language Basics"
 Regex Previewer (Christof Marti)
 ShellCheck (Timon Wong)
-Windsurf Plugin (formerly Codeium)
-  - AI Coding Autocomplete and Chat for Python, JavaScript, and more.
-  - Extension is in maintenance mode, use their VSCode fork called Windsurf Editor.
 Wokwi Simulator (wokwi.com)
