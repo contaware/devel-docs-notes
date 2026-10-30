@@ -1,0 +1,118 @@
+Most systems use the following top-down coordinates system:
+
+0---x--->   +
+|
+y     . (x,y)
+|
+v
+
++
+
+
+Win32 GDI drawing
+-----------------
+
+Coordinates in Windows are discrete points, a (x,y) coordinate indicates 
+the position of a pixel which is the smallest unit.
+
+The MoveToEx() function sets the current position to the specified point:
+BOOL MoveToEx(
+  [in]  HDC     hdc,
+  [in]  int     x,
+  [in]  int     y,
+  [out] LPPOINT lppt
+);
+Note: MoveTo() is defined for the Win16 API only.
+
+The LineTo() function draws a line with the current pen, from the
+current position (included) up to, but not including, the specified 
+point. LineTo() updates the current position with the given point:
+BOOL LineTo(
+  [in] HDC hdc,
+  [in] int x,
+  [in] int y
+);
+
+The Rectangle() function draws with the current pen, it includes the 
+left and top edges, but excludes the bottom and right edges:
+BOOL Rectangle(
+  [in] HDC hdc,
+  [in] int left,
+  [in] int top,
+  [in] int right,
+  [in] int bottom
+);
+
+The FillRect() function fills a rectangle that includes the left and top 
+edges, but excludes the right and bottom edges:
+int FillRect(
+  [in] HDC        hDC,
+  [in] const RECT *lprc,
+  [in] HBRUSH     hbr
+);
+
+Here the RECT structure, see also how the width and height are calculated:
+typedef struct tagRECT {
+  LONG left;
+  LONG top;
+  LONG right;
+  LONG bottom;
+} RECT, *PRECT, *NPRECT, *LPRECT;
+RECT rect;
+int width = rect.right - rect.left;
+int height = rect.bottom - rect.top;
+
+
+SVG drawing
+-----------
+
+Coordinates in SVG are infinitely small points, floating point numbers 
+are thus supported. By default the strokes are drawn equally outside 
+and inside. SVG 2 supports the following attribute:
+stroke-align="center"    (default)
+stroke-align="inner"
+stroke-align="outer"
+https://caniuse.com/?search=stroke-align
+
+The rectangle starts to draw at (x,y) included and draws up to the end 
+point (x+width,y+height) included:
+<rect
+  x="0"
+  y="0"
+  width="2"
+  height="2"
+  fill="yellow"
+/>
+<rect
+  x="0"
+  y="3"
+  width="2"
+  height="2"
+  stroke="green"
+  stroke-width="0.2"
+  fill="none"
+/>
+
+Starting and ending points are included:
+<line
+  x1="0"
+  y1="0"
+  x2="2"
+  y2="2"
+  stroke="blue"
+  stroke-width="0.2"
+/>
+
+Draw path from the point M included, to point L included:
+<path
+  d="
+    M 0,2
+    L 2,0
+  "
+  stroke="orange"
+  stroke-width="0.2"
+  fill="none"
+/>
+Note: Under d="..." whitespace are only required between adjacent 
+      numbers. Separators like commas and newlines are tolerated, but 
+      are considered superfluous. The commands are case sensitive.
