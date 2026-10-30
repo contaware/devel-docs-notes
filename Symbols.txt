@@ -7,6 +7,7 @@ Copy/Paste the following unicode symbols
 - Technical:            ⌀ ⏚ ⏛ ⚠ ⚡ ⌁ ∿ ⏦ ⎓ ⎍ ⎎
 - Mix:                  ☺ ☹ 👍 👎 ⌛ ⌚ ⏱ ⏲ ☀ ☁ ★ ☆ □ ♡ ♥ ❤
 - Math:                 ± ≠ ≈ ≅ ≤ ≥ ½ ⅓ ¼ ⅛ ∞ ƒ √ ∑ ∫ ∂ ∆
+- Multiply/dot op.:     ⋅
 - Greek alphabet:
   LaTeX                 Unicode
   lower     upper       lower upper
